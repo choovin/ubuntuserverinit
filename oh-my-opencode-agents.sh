@@ -1444,17 +1444,39 @@ install_opencode_manager() {
         # Remove existing content if any
         sudo rm -rf "${install_dir:?}"/*
 
-        # Clone repository with error handling
-        if ! sudo git clone https://github.com/chriswritescode-dev/opencode-manager.git "$install_dir" 2>&1; then
-            log_error "Failed to clone OpenCode Manager repository"
-            log_info "Please check your internet connection and try again"
-            return 1
-        fi
+        # Define clone URLs with fallback options
+        local clone_urls=(
+            "https://github.com/chriswritescode-dev/opencode-manager.git"
+            "https://ghproxy.com/https://github.com/chriswritescode-dev/opencode-manager.git"
+            "https://clone.icu/https://github.com/chriswritescode-dev/opencode-manager.git"
+        )
 
-        # Verify clone was successful
-        if [ ! -f "$install_dir/package.json" ]; then
-            log_error "package.json not found after clone. Repository may be empty or invalid."
-            log_info "Please check: https://github.com/chriswritescode-dev/opencode-manager"
+        local clone_success=false
+        local last_error=""
+
+        for url in "${clone_urls[@]}"; do
+            log_info "Trying to clone from: $url"
+
+            if sudo git clone "$url" "$install_dir" 2>&1; then
+                # Verify clone was successful
+                if [ -f "$install_dir/package.json" ]; then
+                    clone_success=true
+                    log_success "Successfully cloned from $url"
+                    break
+                else
+                    last_error="Clone succeeded but package.json not found"
+                    sudo rm -rf "${install_dir:?}"/*
+                fi
+            else
+                last_error=$(sudo git clone "$url" "$install_dir" 2>&1 | tail -1)
+            fi
+        done
+
+        if [ "$clone_success" = false ]; then
+            log_error "Failed to clone OpenCode Manager repository"
+            log_error "Last error: $last_error"
+            log_info "Please check your internet connection or manually clone the repository:"
+            log_info "  sudo git clone https://github.com/chriswritescode-dev/opencode-manager.git /opt/opencode-manager"
             return 1
         fi
 
