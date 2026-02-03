@@ -39,7 +39,7 @@ test_info() {
 
 # Test 1: Check script syntax
 test_header "Test 1: Script Syntax Validation"
-if bash -n /workspace/repos/oh-my-opencode-agents/ubuntu-server-setup.sh 2>&1; then
+if bash -n /workspace/repos/oh-my-opencode-agents/oh-my-opencode-agents.sh 2>&1; then
     test_pass "Script syntax is valid"
 else
     test_fail "Script has syntax errors"
@@ -75,7 +75,7 @@ REQUIRED_FUNCTIONS=(
 )
 
 for func in "${REQUIRED_FUNCTIONS[@]}"; do
-    if grep -q "^${func}()" /workspace/repos/oh-my-opencode-agents/ubuntu-server-setup.sh; then
+    if grep -q "^${func}()" /workspace/repos/oh-my-opencode-agents/oh-my-opencode-agents.sh; then
         test_pass "Function '$func' is defined"
     else
         test_fail "Function '$func' is NOT defined"
@@ -110,7 +110,7 @@ MAIN_CALLS=(
 )
 
 for call in "${MAIN_CALLS[@]}"; do
-    if grep -A 50 "^main()" /workspace/repos/oh-my-opencode-agents/ubuntu-server-setup.sh | grep -q "${call}"; then
+    if grep -A 50 "^main()" /workspace/repos/oh-my-opencode-agents/oh-my-opencode-agents.sh | grep -q "${call}"; then
         test_pass "'$call' is called in main()"
     else
         test_fail "'$call' is NOT called in main()"
@@ -129,7 +129,7 @@ CHINESE_PATTERNS=(
     "成功"
 )
 
-CHINESE_COUNT=$(grep -c "宝塔\|面板\|安装\|配置\|成功" /workspace/repos/oh-my-opencode-agents/ubuntu-server-setup.sh || echo "0")
+CHINESE_COUNT=$(grep -c "宝塔\|面板\|安装\|配置\|成功" /workspace/repos/oh-my-opencode-agents/oh-my-opencode-agents.sh || echo "0")
 if [ "$CHINESE_COUNT" -gt 0 ]; then
     test_pass "Found $CHINESE_COUNT instances of Chinese text in logs"
 else
@@ -147,7 +147,7 @@ LOG_PATTERNS=(
 )
 
 for pattern in "${LOG_PATTERNS[@]}"; do
-    count=$(grep -cE "$pattern" /workspace/repos/oh-my-opencode-agents/ubuntu-server-setup.sh || echo "0")
+    count=$(grep -cE "$pattern" /workspace/repos/oh-my-opencode-agents/oh-my-opencode-agents.sh || echo "0")
     if [ "$count" -gt 0 ]; then
         test_pass "Pattern '$pattern' found ($count times)"
     else
@@ -159,14 +159,14 @@ done
 test_header "Test 6: Dependency Chain Validation"
 
 # Check if install_opencode_manager checks for npm
-if grep -A 10 "install_opencode_manager()" /workspace/repos/oh-my-opencode-agents/ubuntu-server-setup.sh | grep -q "command_exists npm"; then
+if grep -A 10 "install_opencode_manager()" /workspace/repos/oh-my-opencode-agents/oh-my-opencode-agents.sh | grep -q "command_exists npm"; then
     test_pass "install_opencode_manager checks for npm dependency"
 else
     test_fail "install_opencode_manager missing npm dependency check"
 fi
 
 # Check if install_poetry checks for python3
-if grep -A 10 "install_poetry()" /workspace/repos/oh-my-opencode-agents/ubuntu-server-setup.sh | grep -q "command_exists python3"; then
+if grep -A 10 "install_poetry()" /workspace/repos/oh-my-opencode-agents/oh-my-opencode-agents.sh | grep -q "command_exists python3"; then
     test_pass "install_poetry checks for python3"
 else
     test_fail "install_poetry missing python3 check"
@@ -175,13 +175,13 @@ fi
 # Test 7: Check systemd service configuration
 test_header "Test 7: Systemd Service Configuration"
 
-if grep -A 30 "opencode-manager.service" /workspace/repos/oh-my-opencode-agents/ubuntu-server-setup.sh | grep -q "ExecStart.*pnpm"; then
+if grep -A 30 "opencode-manager.service" /workspace/repos/oh-my-opencode-agents/oh-my-opencode-agents.sh | grep -q "ExecStart.*pnpm"; then
     test_pass "Systemd service includes pnpm ExecStart"
 else
     test_fail "Systemd service missing pnpm ExecStart"
 fi
 
-if grep -A 30 "opencode-manager.service" /workspace/repos/oh-my-opencode-agents/ubuntu-server-setup.sh | grep -q "/usr/local/bin"; then
+if grep -A 30 "opencode-manager.service" /workspace/repos/oh-my-opencode-agents/oh-my-opencode-agents.sh | grep -q "/usr/local/bin"; then
     test_pass "Systemd service includes correct PATH with /usr/local/bin"
 else
     test_fail "Systemd service PATH may be incorrect"
@@ -197,7 +197,7 @@ ERROR_HANDLING_PATTERNS=(
 )
 
 for pattern in "${ERROR_HANDLING_PATTERNS[@]}"; do
-    if grep -q "$pattern" /workspace/repos/oh-my-opencode-agents/ubuntu-server-setup.sh; then
+    if grep -q "$pattern" /workspace/repos/oh-my-opencode-agents/oh-my-opencode-agents.sh; then
         test_pass "Error handling: '$pattern' present"
     else
         test_fail "Error handling: '$pattern' missing"
@@ -208,9 +208,9 @@ done
 test_header "Test 9: Execution Order Analysis"
 
 # Get line numbers of key installations
-NODEJS_LINE=$(grep -n "install_nodejs &&" /workspace/repos/oh-my-opencode-agents/ubuntu-server-setup.sh | head -1 | cut -d: -f1)
-OPENCODE_LINE=$(grep -n "install_opencode_manager &&" /workspace/repos/oh-my-opencode-agents/ubuntu-server-setup.sh | head -1 | cut -d: -f1)
-POETRY_LINE=$(grep -n "install_poetry &&" /workspace/repos/oh-my-opencode-agents/ubuntu-server-setup.sh | head -1 | cut -d: -f1)
+NODEJS_LINE=$(grep -n "install_nodejs &&" /workspace/repos/oh-my-opencode-agents/oh-my-opencode-agents.sh | head -1 | cut -d: -f1)
+OPENCODE_LINE=$(grep -n "install_opencode_manager &&" /workspace/repos/oh-my-opencode-agents/oh-my-opencode-agents.sh | head -1 | cut -d: -f1)
+POETRY_LINE=$(grep -n "install_poetry &&" /workspace/repos/oh-my-opencode-agents/oh-my-opencode-agents.sh | head -1 | cut -d: -f1)
 
 if [ -n "$NODEJS_LINE" ] && [ -n "$OPENCODE_LINE" ]; then
     if [ "$NODEJS_LINE" -lt "$OPENCODE_LINE" ]; then

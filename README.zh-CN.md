@@ -20,13 +20,13 @@ git clone https://github.com/choovin/oh-my-opencode-agents.git
 cd oh-my-opencode-agents
 
 # 赋予执行权限
-chmod +x ubuntu-server-setup.sh
+chmod +x oh-my-opencode-agents.sh
 
 # 交互模式安装（推荐首次使用）
-./ubuntu-server-setup.sh
+./oh-my-opencode-agents.sh
 
 # 全自动模式（适用于CI/CD或自动化）
-./ubuntu-server-setup.sh -y
+./oh-my-opencode-agents.sh -y
 ```
 
 ---
@@ -82,7 +82,7 @@ chmod +x ubuntu-server-setup.sh
 ### 交互模式（推荐首次使用）
 
 ```bash
-./ubuntu-server-setup.sh
+./oh-my-opencode-agents.sh
 ```
 
 脚本将执行：
@@ -96,9 +96,9 @@ chmod +x ubuntu-server-setup.sh
 ### 非交互模式（全自动）
 
 ```bash
-./ubuntu-server-setup.sh -y
+./oh-my-opencode-agents.sh -y
 # 或
-./ubuntu-server-setup.sh --yes
+./oh-my-opencode-agents.sh --yes
 ```
 
 适用于：
@@ -109,7 +109,7 @@ chmod +x ubuntu-server-setup.sh
 ### 显示帮助
 
 ```bash
-./ubuntu-server-setup.sh --help
+./oh-my-opencode-agents.sh --help
 ```
 
 ---
@@ -120,13 +120,13 @@ chmod +x ubuntu-server-setup.sh
 
 ```bash
 # 1. 下载脚本
-curl -O https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/ubuntu-server-setup.sh
+curl -O https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh
 
 # 2. 添加执行权限
-chmod +x ubuntu-server-setup.sh
+chmod +x oh-my-opencode-agents.sh
 
 # 3. 运行（交互模式）
-./ubuntu-server-setup.sh
+./oh-my-opencode-agents.sh
 
 # 4. 查看日志
 cat ~/ubuntu-setup-*.log
@@ -136,10 +136,10 @@ cat ~/ubuntu-setup-*.log
 
 ```bash
 # 全自动安装
-./ubuntu-server-setup.sh -y
+./oh-my-opencode-agents.sh -y
 
 # 以root用户运行（不推荐）
-sudo bash ubuntu-server-setup.sh -y
+sudo bash oh-my-opencode-agents.sh -y
 ```
 
 ---
@@ -199,7 +199,7 @@ Actions performed during this run:
 ### 自动模式输出
 
 ```bash
-./ubuntu-server-setup.sh -y
+./oh-my-opencode-agents.sh -y
 
 # 所有提示显示[AUTO-YES]：
 Continue with installation? [AUTO-YES]
@@ -306,7 +306,7 @@ cp -r ~/.config-backups/20250122-143022/nvim-143500 ~/.config/nvim
 **问题**：脚本因"权限拒绝"失败
 ```bash
 # 解决：添加执行权限
-chmod +x ubuntu-server-setup.sh
+chmod +x oh-my-opencode-agents.sh
 ```
 
 **问题**：Docker命令需要sudo
@@ -456,10 +456,10 @@ plugins=(
 
 ```bash
 # 首次使用
-chmod +x ubuntu-server-setup.sh && ./ubuntu-server-setup.sh
+chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh
 
 # 全自动安装
-./ubuntu-server-setup.sh -y
+./oh-my-opencode-agents.sh -y
 
 # 查看日志
 cat ~/ubuntu-setup-*.log

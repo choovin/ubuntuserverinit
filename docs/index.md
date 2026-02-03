@@ -27,8 +27,8 @@ git clone https://github.com/choovin/oh-my-opencode-agents.git
 cd oh-my-opencode-agents
 
 # 一键全自动安装（推荐用于生产环境）
-chmod +x ubuntu-server-setup.sh
-sudo ./ubuntu-server-setup.sh -y
+chmod +x oh-my-opencode-agents.sh
+sudo ./oh-my-opencode-agents.sh -y
 ```
 
 安装完成后：
@@ -58,7 +58,7 @@ sudo ./ubuntu-server-setup.sh -y
 ### 交互模式（推荐首次使用）
 
 ```bash
-./ubuntu-server-setup.sh
+./oh-my-opencode-agents.sh
 ```
 
 脚本将引导您完成每个组件的选择和安装。
@@ -66,7 +66,7 @@ sudo ./ubuntu-server-setup.sh -y
 ### 全自动模式（生产环境）
 
 ```bash
-./ubuntu-server-setup.sh -y
+./oh-my-opencode-agents.sh -y
 ```
 
 所有提示自动确认，适合CI/CD和自动化部署。

@@ -149,7 +149,7 @@ Upgraded:
 
 **交互式安装**:
 ```bash
-chmod +x ubuntu-server-setup.sh && ./ubuntu-server-setup.sh
+chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh
 ```
 ✅ 脚本可执行权限已设置
 ✅ 所有函数已定义
@@ -157,7 +157,7 @@ chmod +x ubuntu-server-setup.sh && ./ubuntu-server-setup.sh
 
 **全自动安装**:
 ```bash
-./ubuntu-server-setup.sh -y
+./oh-my-opencode-agents.sh -y
 ```
 ✅ 支持-y参数自动确认所有提示
 ✅ 适用于CI/CD环境
@@ -196,7 +196,7 @@ a5800e9 docs: 重构README文档，添加中英文双语支持
 ### 一条命令安装能力: ✅ 支持
 
 ```bash
-chmod +x ubuntu-server-setup.sh && sudo ./ubuntu-server-setup.sh -y
+chmod +x oh-my-opencode-agents.sh && sudo ./oh-my-opencode-agents.sh -y
 ```
 
 该命令将在全新Ubuntu服务器上自动完成：
@@ -233,16 +233,16 @@ chmod +x ubuntu-server-setup.sh && sudo ./ubuntu-server-setup.sh -y
 
 ```bash
 # 1. 下载脚本
-curl -O https://raw.githubusercontent.com/typhoon1217/oh-my-opencode-agents/main/ubuntu-server-setup.sh
+curl -O https://raw.githubusercontent.com/typhoon1217/oh-my-opencode-agents/main/oh-my-opencode-agents.sh
 
 # 2. 添加执行权限
-chmod +x ubuntu-server-setup.sh
+chmod +x oh-my-opencode-agents.sh
 
 # 3. 全自动安装 (推荐用于生产环境)
-sudo ./ubuntu-server-setup.sh -y
+sudo ./oh-my-opencode-agents.sh -y
 
 # 或者交互式安装 (推荐用于首次使用)
-./ubuntu-server-setup.sh
+./oh-my-opencode-agents.sh
 ```
 
 ### 安装完成后访问:

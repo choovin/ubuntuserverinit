@@ -20,13 +20,13 @@ git clone https://github.com/choovin/oh-my-opencode-agents.git
 cd oh-my-opencode-agents
 
 # Make executable
-chmod +x ubuntu-server-setup.sh
+chmod +x oh-my-opencode-agents.sh
 
 # Interactive mode (recommended for first use)
-./ubuntu-server-setup.sh
+./oh-my-opencode-agents.sh
 
 # Full auto mode (for CI/CD or automation)
-./ubuntu-server-setup.sh -y
+./oh-my-opencode-agents.sh -y
 ```
 
 ---
@@ -92,7 +92,7 @@ chmod +x ubuntu-server-setup.sh
 ### Interactive Mode (Recommended for First Use)
 
 ```bash
-./ubuntu-server-setup.sh
+./oh-my-opencode-agents.sh
 ```
 
 The script will:
@@ -106,9 +106,9 @@ The script will:
 ### Non-Interactive Mode (Auto-Yes)
 
 ```bash
-./ubuntu-server-setup.sh -y
+./oh-my-opencode-agents.sh -y
 # or
-./ubuntu-server-setup.sh --yes
+./oh-my-opencode-agents.sh --yes
 ```
 
 Perfect for:
@@ -119,7 +119,7 @@ Perfect for:
 ### Display Help
 
 ```bash
-./ubuntu-server-setup.sh --help
+./oh-my-opencode-agents.sh --help
 ```
 
 ---
@@ -130,13 +130,13 @@ Perfect for:
 
 ```bash
 # 1. Download script
-curl -O https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/ubuntu-server-setup.sh
+curl -O https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh
 
 # 2. Make executable
-chmod +x ubuntu-server-setup.sh
+chmod +x oh-my-opencode-agents.sh
 
 # 3. Run (interactive mode)
-./ubuntu-server-setup.sh
+./oh-my-opencode-agents.sh
 
 # 4. Check logs
 cat ~/ubuntu-setup-*.log
@@ -146,10 +146,10 @@ cat ~/ubuntu-setup-*.log
 
 ```bash
 # Full automatic installation
-./ubuntu-server-setup.sh -y
+./oh-my-opencode-agents.sh -y
 
 # Run as root (not recommended)
-sudo bash ubuntu-server-setup.sh -y
+sudo bash oh-my-opencode-agents.sh -y
 ```
 
 ---
@@ -209,7 +209,7 @@ Actions performed during this run:
 ### Auto-Yes Mode Output
 
 ```bash
-./ubuntu-server-setup.sh -y
+./oh-my-opencode-agents.sh -y
 
 # All prompts show [AUTO-YES]:
 Continue with installation? [AUTO-YES]
@@ -471,7 +471,7 @@ cp -r ~/.config-backups/20250122-143022/nvim-143500 ~/.config/nvim
 **Issue**: Script fails with "permission denied"
 ```bash
 # Solution: Make script executable
-chmod +x ubuntu-server-setup.sh
+chmod +x oh-my-opencode-agents.sh
 ```
 
 **Issue**: Docker commands require sudo
@@ -620,10 +620,10 @@ This project is licensed under the MIT License.
 
 ```bash
 # First time use
-chmod +x ubuntu-server-setup.sh && ./ubuntu-server-setup.sh
+chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh
 
 # Full automatic
-./ubuntu-server-setup.sh -y
+./oh-my-opencode-agents.sh -y
 
 # View logs
 cat ~/ubuntu-setup-*.log

@@ -3,7 +3,7 @@
 ## One-Liner Setup
 
 ```bash
-chmod +x ubuntu-server-setup.sh && ./ubuntu-server-setup.sh
+chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh
 ```
 
 ## What You'll Be Asked

@@ -8,13 +8,13 @@
 
 **症状**：
 ```
-bash: ./ubuntu-server-setup.sh: Permission denied
+bash: ./oh-my-opencode-agents.sh: Permission denied
 ```
 
 **解决**：
 ```bash
-chmod +x ubuntu-server-setup.sh
-./ubuntu-server-setup.sh
+chmod +x oh-my-opencode-agents.sh
+./oh-my-opencode-agents.sh
 ```
 
 ### 网络连接失败
@@ -68,7 +68,7 @@ groups
 **解决**：
 ```bash
 # 以root用户运行
-sudo bash ubuntu-server-setup.sh -y
+sudo bash oh-my-opencode-agents.sh -y
 ```
 
 ## 🐋 Docker问题

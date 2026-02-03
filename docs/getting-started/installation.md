@@ -16,13 +16,13 @@
 
 ```bash
 # 下载脚本
-curl -O https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/ubuntu-server-setup.sh
+curl -O https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh
 
 # 添加执行权限
-chmod +x ubuntu-server-setup.sh
+chmod +x oh-my-opencode-agents.sh
 
 # 运行全自动安装
-sudo ./ubuntu-server-setup.sh -y
+sudo ./oh-my-opencode-agents.sh -y
 ```
 
 安装过程大约需要 **15-30分钟**，取决于您的网络速度和系统性能。
@@ -32,7 +32,7 @@ sudo ./ubuntu-server-setup.sh -y
 如果您想选择性地安装组件，使用交互模式：
 
 ```bash
-./ubuntu-server-setup.sh
+./oh-my-opencode-agents.sh
 ```
 
 脚本会逐个询问每个组件：
@@ -58,8 +58,8 @@ git clone https://github.com/choovin/oh-my-opencode-agents.git
 cd oh-my-opencode-agents
 
 # 运行安装
-chmod +x ubuntu-server-setup.sh
-sudo ./ubuntu-server-setup.sh -y
+chmod +x oh-my-opencode-agents.sh
+sudo ./oh-my-opencode-agents.sh -y
 ```
 
 ## 安装过程详解

@@ -11,7 +11,7 @@
 使用 `-y` 或 `--yes` 参数自动确认所有提示：
 
 ```bash
-sudo ./ubuntu-server-setup.sh -y
+sudo ./oh-my-opencode-agents.sh -y
 ```
 
 适用于：
@@ -22,23 +22,23 @@ sudo ./ubuntu-server-setup.sh -y
 #### 帮助信息
 
 ```bash
-./ubuntu-server-setup.sh --help
+./oh-my-opencode-agents.sh --help
 ```
 
 输出：
 ```
 Ubuntu Server Initial Setup Script
 
-Usage: ./ubuntu-server-setup.sh [OPTIONS]
+Usage: ./oh-my-opencode-agents.sh [OPTIONS]
 
 OPTIONS:
     -y, --yes       Auto-answer yes to all prompts
     -h, --help      Display this help message
 
 EXAMPLES:
-    ./ubuntu-server-setup.sh              # Interactive mode
-    ./ubuntu-server-setup.sh -y           # Non-interactive mode
-    sudo bash ./ubuntu-server-setup.sh -y # Run with sudo
+    ./oh-my-opencode-agents.sh              # Interactive mode
+    ./oh-my-opencode-agents.sh -y           # Non-interactive mode
+    sudo bash ./oh-my-opencode-agents.sh -y # Run with sudo
 ```
 
 ## 📁 配置文件位置
@@ -451,7 +451,7 @@ sudo fail2ban-client status sshd
 编辑脚本，注释掉不需要的组件：
 ```bash
 # 编辑脚本
-nano ubuntu-server-setup.sh
+nano oh-my-opencode-agents.sh
 
 # 在main()函数中注释掉
 main() {
@@ -470,12 +470,12 @@ main() {
 # custom-setup.sh
 
 # 下载主脚本
-curl -O https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/ubuntu-server-setup.sh
-chmod +x ubuntu-server-setup.sh
+curl -O https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh
+chmod +x oh-my-opencode-agents.sh
 
 # 只安装特定组件（示例）
 # 这里可以调用主脚本中的单个函数
-source ./ubuntu-server-setup.sh
+source ./oh-my-opencode-agents.sh
 
 # 手动调用需要的函数
 check_prerequisites
@@ -500,10 +500,10 @@ SERVER_IP=$1
 SSH_KEY=$2
 
 # 复制脚本到服务器
-scp -i $SSH_KEY ubuntu-server-setup.sh root@$SERVER_IP:/tmp/
+scp -i $SSH_KEY oh-my-opencode-agents.sh root@$SERVER_IP:/tmp/
 
 # 执行安装
-ssh -i $SSH_KEY root@$SERVER_IP "chmod +x /tmp/ubuntu-server-setup.sh && /tmp/ubuntu-server-setup.sh -y"
+ssh -i $SSH_KEY root@$SERVER_IP "chmod +x /tmp/oh-my-opencode-agents.sh && /tmp/oh-my-opencode-agents.sh -y"
 
 # 验证安装
 ssh -i $SSH_KEY root@$SERVER_IP "docker --version && systemctl status opencode-manager"
@@ -519,8 +519,8 @@ echo "Deployment completed!"
 #cloud-config
 
 runcmd:
-  - curl -O https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/ubuntu-server-setup.sh
-  - chmod +x ubuntu-server-setup.sh
-  - ./ubuntu-server-setup.sh -y
+  - curl -O https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh
+  - chmod +x oh-my-opencode-agents.sh
+  - ./oh-my-opencode-agents.sh -y
   - reboot
 ```

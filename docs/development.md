@@ -22,7 +22,7 @@ oh-my-opencode-agents/
 │   │   └── customization.md
 │   ├── troubleshooting.md        # 故障排除
 │   └── development.md           # 本文件
-├── ubuntu-server-setup.sh        # 主安装脚本
+├── oh-my-opencode-agents.sh        # 主安装脚本
 ├── README.md                     # 英文README
 ├── README.zh-CN.md              # 中文README
 ├── mkdocs.yml                   # 文档站点配置
@@ -64,7 +64,7 @@ mkdocs serve
 
 ### 1. 添加新的安装函数
 
-在 `ubuntu-server-setup.sh` 中添加：
+在 `oh-my-opencode-agents.sh` 中添加：
 
 ```bash
 install_new_tool() {
@@ -174,10 +174,10 @@ setting = value
 
 ```bash
 # 赋予执行权限
-chmod +x ubuntu-server-setup.sh
+chmod +x oh-my-opencode-agents.sh
 
 # 语法检查
-bash -n ubuntu-server-setup.sh
+bash -n oh-my-opencode-agents.sh
 
 # 运行测试脚本
 ./test-script.sh
@@ -204,7 +204,7 @@ apt-get update && apt-get install -y curl wget git
 # Vagrantfile
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/jammy64"
-  config.vm.provision "shell", path: "ubuntu-server-setup.sh"
+  config.vm.provision "shell", path: "oh-my-opencode-agents.sh"
 end
 ```
 
@@ -297,7 +297,7 @@ git commit -m "feat: 添加Redis安装支持
 
 ```bash
 # 1. 语法检查
-bash -n ubuntu-server-setup.sh
+bash -n oh-my-opencode-agents.sh
 
 # 2. 运行测试
 ./test-script.sh
@@ -330,7 +330,7 @@ git commit -m "type: description"
 
 ```bash
 # 开启详细输出
-bash -x ubuntu-server-setup.sh
+bash -x oh-my-opencode-agents.sh
 
 # 或在脚本中添加
 set -x  # 开启调试
