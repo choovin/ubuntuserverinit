@@ -1,43 +1,28 @@
-# Ubuntu Server Initial Setup Script
+# Multi-Platform Server Setup Scripts
 
-[![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04%2F22.04%2F24.04-orange.svg)](https://ubuntu.com)
+[![Multi-Platform](https://img.shields.io/badge/Ubuntu-Centos-Debian-macOS-Windows-blue.svg)]()
 [![Bash](https://img.shields.io/badge/Bash-4.0%2B-green.svg)](https://www.gnu.org/software/bash/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-A comprehensive, interactive setup script for Ubuntu servers with essential modern development tools.
+Comprehensive cross-platform interactive server setup scripts for Ubuntu, CentOS, Debian, macOS, and Windows, installing essential modern development tools with a single command.
 
 ---
 
-## 🚀 Quick Start
+## Supported Platforms
 
-### One-Line Install (Recommended)
+This project provides installation scripts for the following platforms:
 
-```bash
-# Interactive mode (asks for each component)
-curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o oh-my-opencode-agents.sh && chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh
-
-# Full auto mode (installs everything without prompts)
-curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o oh-my-opencode-agents.sh && chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh -y
-```
-
-### Step-by-Step Install
-
-```bash
-# Clone the repository
-git clone https://github.com/choovin/oh-my-opencode-agents.git
-cd oh-my-opencode-agents
-
-# Make executable
-chmod +x oh-my-opencode-agents.sh
-
-# Interactive mode (recommended for first use)
-./oh-my-opencode-agents.sh
-
-# Full auto mode (for CI/CD or automation)
-./oh-my-opencode-agents.sh -y
-```
+| Platform | Script File | Package Manager | Description |
+|----------|-------------|-----------------|-------------|
+| **Ubuntu** | `oh-my-opencode-agents.sh` | apt | Original script, supports Ubuntu 20.04/22.04/24.04 |
+| **CentOS/RHEL** | `install-centos.sh` | dnf/yum | Supports CentOS 7/8, RHEL, Rocky Linux, AlmaLinux |
+| **OpenCloud/Alibaba** | `install-centos.sh` | dnf | Alibaba Cloud, Tencent Cloud and other domestic cloud servers |
+| **Debian** | `install-debian.sh` | apt | Supports Debian 10/11/12 |
+| **macOS (Intel)** | `install-macos-x86.sh` | Homebrew | For Intel-based Macs |
+| **macOS (Apple Silicon)** | `install-macos-arm.sh` | Homebrew | For M1/M2/M3 chip Macs |
+| **Windows** | `install-windows.ps1` | winget | PowerShell script, supports Windows 10/11 |
 
 ---
 
@@ -54,10 +39,89 @@ chmod +x oh-my-opencode-agents.sh
 - 🐚 **Smart Shell Config** - Zsh with prefix-based history search
 - ⚡ **Non-Interactive Mode** - Use `-y` flag for fully automated installation
 - 🌐 **Nginx Reverse Proxy** - Domain-based access to OpenCode Manager via Baota panel
-- 🔄 **WebSocket Support** - Full WebSocket proxy configuration for real-time applications
+- WebSocket Support - Full WebSocket proxy configuration for real-time applications
 
 ---
 
+## Installation Commands
+
+### Ubuntu
+
+```bash
+# Interactive mode
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o install-ubuntu.sh && chmod +x install-ubuntu.sh && ./install-ubuntu.sh
+
+# Auto mode
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o install-ubuntu.sh && chmod +x install-ubuntu.sh && ./install-ubuntu.sh -y
+```
+
+### CentOS / RHEL / OpenCloud / Alibaba Cloud
+
+```bash
+# Interactive mode
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-centos.sh -o install-centos.sh && chmod +x install-centos.sh && ./install-centos.sh
+
+# Auto mode
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-centos.sh -o install-centos.sh && chmod +x install-centos.sh && ./install-centos.sh -y
+```
+
+### Debian
+
+```bash
+# Interactive mode
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-debian.sh -o install-debian.sh && chmod +x install-debian.sh && ./install-debian.sh
+
+# Auto mode
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-debian.sh -o install-debian.sh && chmod +x install-debian.sh && ./install-debian.sh -y
+```
+
+### macOS (Intel / x86_64)
+
+```bash
+# Interactive mode
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-macos-x86.sh -o install-macos-x86.sh && chmod +x install-macos-x86.sh && ./install-macos-x86.sh
+```
+
+### macOS (Apple Silicon / M1/M2/M3)
+
+```bash
+# Interactive mode
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-macos-arm.sh -o install-macos-arm.sh && chmod +x install-macos-arm.sh && ./install-macos-arm.sh
+```
+
+### Windows (PowerShell)
+
+```powershell
+# Run as Administrator
+# Interactive mode
+irm https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-windows.ps1 | iex
+
+# Or save and run the script
+irm https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-windows.ps1 -OutFile install-windows.ps1
+.\install-windows.ps1
+```
+
+### All Platforms (Clone Repository)
+
+```bash
+# Clone the repository
+git clone https://github.com/choovin/oh-my-opencode-agents.git
+cd oh-my-opencode-agents
+
+# Make scripts executable
+chmod +x install-*.sh
+
+# Run the script for your platform
+./install-ubuntu.sh    # Ubuntu
+./install-centos.sh    # CentOS/RHEL/Alibaba
+./install-debian.sh    # Debian
+./install-macos-x86.sh # macOS Intel
+./install-macos-arm.sh # macOS Apple Silicon
+```
+
+---
+
+## What Gets Installed
 ## 📦 What Gets Installed
 
 ### Core Tools
@@ -588,12 +652,38 @@ plugins=(
 
 ---
 
-## 📋 Requirements
+## Requirements
 
+### Ubuntu
 - Ubuntu 20.04, 22.04, or 24.04
 - Sudo privileges
 - Internet connection
 - ~500MB disk space for all tools
+
+### CentOS / RHEL / Alibaba Cloud
+- CentOS 7/8, RHEL 7/8, Rocky Linux 8/9, AlmaLinux 8/9
+- Sudo privileges
+- Internet connection
+- ~500MB disk space for all tools
+
+### Debian
+- Debian 10 (Buster), 11 (Bullseye), 12 (Bookworm)
+- Sudo privileges
+- Internet connection
+- ~500MB disk space for all tools
+
+### macOS
+- macOS 10.15 (Catalina) or higher
+- Homebrew (script will install automatically)
+- Internet connection
+- ~500MB disk space for all tools
+
+### Windows
+- Windows 10 2004+ or Windows 11
+- PowerShell 5.1+ or PowerShell Core 7+
+- winget (Windows Package Manager)
+- Administrator privileges (required for some installations)
+- Internet connection
 
 ---
 
@@ -630,9 +720,9 @@ This project is licensed under the MIT License.
 
 ---
 
-**Author**: typhoon1217  
-**Date**: 2025-01-22  
-**Version**: 1.0.0  
+**Author**: typhoon1217
+**Date**: 2025-02-03
+**Version**: 2.0.0 (Multi-Platform Support)
 
 ---
 

@@ -1,58 +1,121 @@
-# Ubuntu服务器初始化脚本
+# 多平台服务器初始化脚本
 
-[![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04%2F22.04%2F24.04-orange.svg)](https://ubuntu.com)
+[![Multi-Platform](https://img.shields.io/badge/Ubuntu-Centos-Debian-macOS-Windows-blue.svg)]()
 [![Bash](https://img.shields.io/badge/Bash-4.0%2B-green.svg)](https://www.gnu.org/software/bash/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-一个功能全面的交互式Ubuntu服务器初始化脚本，一键安装现代开发环境所需的核心工具。
+一个功能全面的跨平台交互式服务器初始化脚本，支持 Ubuntu、CentOS、Debian、macOS 和 Windows，一键安装现代开发环境所需的核心工具。
 
 ---
 
-## 🚀 快速开始
+## 快速开始
 
-### 一行命令安装（推荐）
+### Ubuntu
 
 ```bash
-# 交互模式（询问每个组件）
-curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o oh-my-opencode-agents.sh && chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh
+# 交互模式
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o install-ubuntu.sh && chmod +x install-ubuntu.sh && ./install-ubuntu.sh
 
-# 全自动模式（无需交互，安装所有组件）
-curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o oh-my-opencode-agents.sh && chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh -y
+# 全自动模式
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o install-ubuntu.sh && chmod +x install-ubuntu.sh && ./install-ubuntu.sh -y
 ```
 
-### 分步安装
+### CentOS / RHEL / OpenCloud / Alibaba Cloud
+
+```bash
+# 交互模式
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-centos.sh -o install-centos.sh && chmod +x install-centos.sh && ./install-centos.sh
+
+# 全自动模式
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-centos.sh -o install-centos.sh && chmod +x install-centos.sh && ./install-centos.sh -y
+```
+
+### Debian
+
+```bash
+# 交互模式
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-debian.sh -o install-debian.sh && chmod +x install-debian.sh && ./install-debian.sh
+
+# 全自动模式
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-debian.sh -o install-debian.sh && chmod +x install-debian.sh && ./install-debian.sh -y
+```
+
+### macOS (Intel / x86_64)
+
+```bash
+# 交互模式
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-macos-x86.sh -o install-macos-x86.sh && chmod +x install-macos-x86.sh && ./install-macos-x86.sh
+```
+
+### macOS (Apple Silicon / M1/M2/M3)
+
+```bash
+# 交互模式
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-macos-arm.sh -o install-macos-arm.sh && chmod +x install-macos-arm.sh && ./install-macos-arm.sh
+```
+
+### Windows (PowerShell)
+
+```powershell
+# 以管理员身份运行 PowerShell
+# 交互模式
+irm https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-windows.ps1 | iex
+
+# 如果需要保存脚本
+irm https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/install-windows.ps1 -OutFile install-windows.ps1
+.\install-windows.ps1
+```
+
+### 分步安装（所有平台）
 
 ```bash
 # 克隆仓库
 git clone https://github.com/choovin/oh-my-opencode-agents.git
 cd oh-my-opencode-agents
 
-# 赋予执行权限
-chmod +x oh-my-opencode-agents.sh
+# 根据你的平台选择脚本
+chmod +x install-*.sh
 
-# 交互模式安装（推荐首次使用）
-./oh-my-opencode-agents.sh
-
-# 全自动模式（适用于CI/CD或自动化）
-./oh-my-opencode-agents.sh -y
+# 运行对应平台的脚本
+./install-ubuntu.sh    # Ubuntu
+./install-centos.sh    # CentOS/RHEL/Alibaba
+./install-debian.sh    # Debian
+./install-macos-x86.sh # macOS Intel
+./install-macos-arm.sh # macOS Apple Silicon
 ```
+
+---
+
+## 支持的平台
+
+本项目提供以下平台的安装脚本：
+
+| 平台 | 脚本文件 | 包管理器 | 说明 |
+|------|----------|----------|------|
+| **Ubuntu** | `oh-my-opencode-agents.sh` | apt | 原始脚本，支持 Ubuntu 20.04/22.04/24.04 |
+| **CentOS/RHEL** | `install-centos.sh` | dnf/yum | 支持 CentOS 7/8, RHEL, Rocky Linux, AlmaLinux |
+| **OpenCloud/Alibaba** | `install-centos.sh` | dnf | 阿里云、腾讯云等国产云服务器 |
+| **Debian** | `install-debian.sh` | apt | 支持 Debian 10/11/12 |
+| **macOS (Intel)** | `install-macos-x86.sh` | Homebrew | 适用于 Intel 芯片的 Mac |
+| **macOS (Apple Silicon)** | `install-macos-arm.sh` | Homebrew | 适用于 M1/M2/M3 芯片的 Mac |
+| **Windows** | `install-windows.ps1` | winget | PowerShell 脚本，支持 Windows 10/11 |
 
 ---
 
 ## ✨ 功能特性
 
-- 🎯 **交互式安装** - 每个组件都有 Y/N 提示
-- ⚡ **自动模式** - `-y` 标志全自动安装
-- 🔍 **前后状态** - 显示已安装 vs 新安装
-- 🎨 **彩色输出** - 清晰的严重程度分级
-- 🔒 **错误处理** - 严格检查与详细日志
-- 💾 **自动备份** - 修改前保存现有配置
-- 📊 **完整日志** - 带时间戳的完整日志
-- 🐳 **Docker用户组** - 自动配置用户权限
-- 🐚 **智能Shell** - Zsh + 前缀历史搜索
-- ⚡ **非交互模式** - 使用 `-y` 标志全自动安装
+- 交互式安装 - 每个组件都有 Y/N 提示
+- 自动模式 - `-y` 标志全自动安装（Linux/macOS）
+- 前后状态 - 显示已安装 vs 新安装
+- 彩色输出 - 清晰的严重程度分级
+- 错误处理 - 严格检查与详细日志
+- 自动备份 - 修改前保存现有配置（Linux）
+- 完整日志 - 带时间戳的完整日志
+- Docker用户组 - 自动配置用户权限（Linux）
+- 智能Shell - Zsh + 前缀历史搜索（Linux/macOS）
+- 非交互模式 - 使用 `-y` 标志全自动安装
 
 ---
 
@@ -423,12 +486,40 @@ plugins=(
 
 ---
 
-## 📋 系统要求
+---
 
+## 系统要求
+
+### Ubuntu
 - Ubuntu 20.04、22.04 或 24.04
 - Sudo权限
 - 互联网连接
 - 约500MB磁盘空间
+
+### CentOS / RHEL / Alibaba Cloud
+- CentOS 7/8, RHEL 7/8, Rocky Linux 8/9, AlmaLinux 8/9
+- Sudo权限
+- 互联网连接
+- 约500MB磁盘空间
+
+### Debian
+- Debian 10 (Buster), 11 (Bullseye), 12 (Bookworm)
+- Sudo权限
+- 互联网连接
+- 约500MB磁盘空间
+
+### macOS
+- macOS 10.15 (Catalina) 或更高版本
+- Homebrew（脚本会自动安装）
+- 互联网连接
+- 约500MB磁盘空间
+
+### Windows
+- Windows 10 2004+ 或 Windows 11
+- PowerShell 5.1+ 或 PowerShell Core 7+
+- winget（Windows Package Manager）
+- 管理员权限（部分安装需要）
+- 互联网连接
 
 ---
 
@@ -466,9 +557,9 @@ plugins=(
 
 ---
 
-**作者**：typhoon1217  
-**日期**：2025-01-22  
-**版本**：1.0.0  
+**作者**：typhoon1217
+**日期**：2025-02-03
+**版本**：2.0.0（多平台支持）  
 
 ---
 
