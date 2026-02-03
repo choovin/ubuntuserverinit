@@ -1,0 +1,43 @@
+{#- GitHub repository info in header -#}
+{% if config.repo_url %}
+  {% set repo_id = config.repo_url | replace("https://github.com/", "") %}
+  <div class="md-header__source">
+    <a href="{{ config.repo_url }}" title="前往 GitHub 仓库" class="md-source" data-md-component="source">
+      <div class="md-source__icon md-icon">
+        {% set icon = "fontawesome/brands/github" %}
+        {% include ".icons/" ~ icon ~ ".svg" %}
+      </div>
+      <div class="md-source__repository">
+        {{ config.repo_name }}
+      </div>
+      <div class="md-source__facts">
+        <div class="md-source__fact md-source__fact--stars">
+          <span class="md-icon">
+            {% include ".icons/material/star.svg" %}
+          </span>
+          <span class="git-stars">加载中...</span>
+        </div>
+        <div class="md-source__fact md-source__fact--forks">
+          <span class="md-icon">
+            {% include ".icons/material/source-fork.svg" %}
+          </span>
+          <span class="git-forks">加载中...</span>
+        </div>
+      </div>
+    </a>
+  </div>
+  
+  <script>
+    // Fetch GitHub repo stats
+    fetch('https://api.github.com/repos/{{ repo_id }}')
+      .then(response => response.json())
+      .then(data => {
+        document.querySelector('.git-stars').textContent = data.stargazers_count || '0';
+        document.querySelector('.git-forks').textContent = data.forks_count || '0';
+      })
+      .catch(() => {
+        document.querySelector('.git-stars').textContent = '{{ repo_id }}';
+        document.querySelector('.git-forks').style.display = 'none';
+      });
+  </script>
+{% endif %}
