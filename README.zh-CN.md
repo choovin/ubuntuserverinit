@@ -351,8 +351,8 @@ ld='lazydocker'  # 快速启动lazydocker
 ### Neovim 配置
 
 脚本将从以下地址克隆您的自定义配置：
-- 主源：`git@github.com:typhoon1217/nvimconfig.git`（SSH）
-- 备用：`https://github.com/typhoon1217/nvimconfig.git`（HTTPS）
+- 主源：`git@github.com:choovin/nvimconfig.git`（SSH）
+- 备用：`https://github.com/choovin/nvimconfig.git`（HTTPS）
 
 **注意**：SSH需要GitHub SSH密钥设置。如果SSH失败，会自动尝试HTTPS。
 
@@ -557,9 +557,9 @@ plugins=(
 
 ---
 
-**作者**：typhoon1217
+**作者**：choovin
 **日期**：2025-02-03
-**版本**：2.0.0（多平台支持）  
+**版本**：0.1.0-beta  
 
 ---
 

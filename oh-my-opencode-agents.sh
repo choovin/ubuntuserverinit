@@ -4,7 +4,7 @@
 # Ubuntu Server Initial Setup Script
 #
 # Description: Interactive installation script for essential development tools
-# Author: Generated for typhoon1217
+# Author: Generated for choovin
 # Date: 2025-01-22
 #
 # Features:
@@ -1169,13 +1169,13 @@ configure_neovim() {
         fi
 
         # Clone new config
-        log_info "Cloning Neovim config from git@github.com:typhoon1217/nvimconfig.git..."
+        log_info "Cloning Neovim config from git@github.com:choovin/nvimconfig.git..."
 
-        if git clone git@github.com:typhoon1217/nvimconfig.git "$nvim_config" 2>/dev/null; then
+        if git clone git@github.com:choovin/nvimconfig.git "$nvim_config" 2>/dev/null; then
             log_success "Neovim config installed successfully"
         else
             log_warn "Failed to clone via SSH. Trying HTTPS..."
-            if git clone https://github.com/typhoon1217/nvimconfig.git "$nvim_config"; then
+            if git clone https://github.com/choovin/nvimconfig.git "$nvim_config"; then
                 log_success "Neovim config installed successfully (HTTPS)"
             else
                 log_error "Failed to clone Neovim config"

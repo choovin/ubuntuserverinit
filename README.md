@@ -720,9 +720,9 @@ This project is licensed under the MIT License.
 
 ---
 
-**Author**: typhoon1217
+**Author**: choovin
 **Date**: 2025-02-03
-**Version**: 2.0.0 (Multi-Platform Support)
+**Version**: 0.1.0-beta
 
 ---
 

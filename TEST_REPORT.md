@@ -233,7 +233,7 @@ chmod +x oh-my-opencode-agents.sh && sudo ./oh-my-opencode-agents.sh -y
 
 ```bash
 # 1. 下载脚本
-curl -O https://raw.githubusercontent.com/typhoon1217/oh-my-opencode-agents/main/oh-my-opencode-agents.sh
+curl -O https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh
 
 # 2. 添加执行权限
 chmod +x oh-my-opencode-agents.sh

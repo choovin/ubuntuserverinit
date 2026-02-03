@@ -4,7 +4,7 @@
 # Windows Server/Desktop Initial Setup Script
 #
 # Description: Interactive installation script for essential development tools
-# Author: Generated for typhoon1217
+# Author: Generated for choovin
 # Date: 2025-02-03
 #
 # Features:
