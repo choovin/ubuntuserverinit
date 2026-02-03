@@ -12,7 +12,17 @@
 
 ## 🚀 快速开始
 
-### 首次使用命令
+### 一行命令安装（推荐）
+
+```bash
+# 交互模式（询问每个组件）
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o oh-my-opencode-agents.sh && chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh
+
+# 全自动模式（无需交互，安装所有组件）
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o oh-my-opencode-agents.sh && chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh -y
+```
+
+### 分步安装
 
 ```bash
 # 克隆仓库
@@ -116,7 +126,17 @@ chmod +x oh-my-opencode-agents.sh
 
 ## 📋 命令示例
 
-### 首次运行示例
+### 快速安装（一行命令）
+
+```bash
+# 下载、授权并交互式运行
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o oh-my-opencode-agents.sh && chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh
+
+# 下载并全自动安装
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o oh-my-opencode-agents.sh && chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh -y
+```
+
+### 分步安装示例
 
 ```bash
 # 1. 下载脚本

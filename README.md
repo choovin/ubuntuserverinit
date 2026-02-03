@@ -12,7 +12,17 @@ A comprehensive, interactive setup script for Ubuntu servers with essential mode
 
 ## 🚀 Quick Start
 
-### First Time Commands
+### One-Line Install (Recommended)
+
+```bash
+# Interactive mode (asks for each component)
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o oh-my-opencode-agents.sh && chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh
+
+# Full auto mode (installs everything without prompts)
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o oh-my-opencode-agents.sh && chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh -y
+```
+
+### Step-by-Step Install
 
 ```bash
 # Clone the repository
@@ -126,7 +136,17 @@ Perfect for:
 
 ## 📋 Command Examples
 
-### First Run Example
+### Quick Install (One Line)
+
+```bash
+# Download, make executable, and run interactively
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o oh-my-opencode-agents.sh && chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh
+
+# Download and auto-install everything
+curl -fsSL https://raw.githubusercontent.com/choovin/oh-my-opencode-agents/main/oh-my-opencode-agents.sh -o oh-my-opencode-agents.sh && chmod +x oh-my-opencode-agents.sh && ./oh-my-opencode-agents.sh -y
+```
+
+### Step-by-Step Install
 
 ```bash
 # 1. Download script

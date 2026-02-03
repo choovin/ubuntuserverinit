@@ -193,6 +193,15 @@ check_installation_status() {
         echo -e "  ${RED}✗${NC} docker: not installed" | tee -a "$LOG_FILE"
     fi
 
+    # Docker Compose
+    if command_exists docker-compose; then
+        BEFORE_INSTALL[docker-compose]="$(docker-compose --version 2>/dev/null || echo 'installed')"
+        echo -e "  ${GREEN}✓${NC} docker-compose: ${BEFORE_INSTALL[docker-compose]}" | tee -a "$LOG_FILE"
+    else
+        BEFORE_INSTALL[docker-compose]="not installed"
+        echo -e "  ${RED}✗${NC} docker-compose: not installed" | tee -a "$LOG_FILE"
+    fi
+
     # Neovim
     if command_exists nvim; then
         BEFORE_INSTALL[nvim]="$(nvim --version 2>/dev/null | head -n1 || echo 'installed')"
@@ -291,7 +300,25 @@ check_installation_status() {
         BEFORE_INSTALL[fd]="not installed"
         echo -e "  ${RED}✗${NC} fd: not installed" | tee -a "$LOG_FILE"
     fi
-    
+
+    # Bun
+    if command_exists bun || [ -f "$HOME/.bun/bin/bun" ]; then
+        BEFORE_INSTALL[bun]="$(bun --version 2>/dev/null || echo 'installed')"
+        echo -e "  ${GREEN}✓${NC} bun: ${BEFORE_INSTALL[bun]}" | tee -a "$LOG_FILE"
+    else
+        BEFORE_INSTALL[bun]="not installed"
+        echo -e "  ${RED}✗${NC} bun: not installed" | tee -a "$LOG_FILE"
+    fi
+
+    # OpenCode CLI
+    if command_exists opencode || [ -f "$HOME/.bun/bin/opencode" ]; then
+        BEFORE_INSTALL[opencode]="installed"
+        echo -e "  ${GREEN}✓${NC} opencode CLI: ${BEFORE_INSTALL[opencode]}" | tee -a "$LOG_FILE"
+    else
+        BEFORE_INSTALL[opencode]="not installed"
+        echo -e "  ${RED}✗${NC} opencode CLI: not installed" | tee -a "$LOG_FILE"
+    fi
+
     # OpenCode Manager
     if [ -d "/opt/opencode-manager" ]; then
         BEFORE_INSTALL[opencode-manager]="installed"
@@ -629,6 +656,34 @@ install_docker() {
         # Install Docker
         sudo apt-get update -y
         sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+        # Install Docker Compose (standalone binary for traditional docker-compose command)
+        log_info "Installing Docker Compose..."
+        
+        # Get latest Docker Compose version
+        local compose_version=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+        if [ -z "$compose_version" ]; then
+            compose_version="2.23.3"  # Fallback version
+        fi
+        
+        log_info "Installing Docker Compose v${compose_version}..."
+        
+        # Download Docker Compose
+        sudo curl -L "https://github.com/docker/compose/releases/download/v${compose_version}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+        
+        # Create symlink to ensure it's in PATH
+        if [ -f /usr/local/bin/docker-compose ]; then
+            sudo ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose 2>/dev/null || true
+        fi
+        
+        # Verify installation
+        if command_exists docker-compose; then
+            log_success "Docker Compose installed: $(docker-compose --version)"
+        else
+            log_warn "Docker Compose standalone installation may have failed"
+            log_info "Docker Compose plugin is available via 'docker compose' (with space)"
+        fi
 
         # Add user to docker group (skip if running as root)
         if [ "$RUNNING_AS_ROOT" = false ]; then
@@ -1231,11 +1286,109 @@ EOF
 # Advanced Server Tools Installation
 ################################################################################
 
+install_bun() {
+    log_header "Bun Installation"
+
+    if command_exists bun; then
+        log_warn "Bun is already installed ($(bun --version))"
+        if ! ask_yn "Reinstall bun?" "n"; then
+            return 1
+        fi
+    fi
+
+    if ask_yn "Install Bun (fast JavaScript runtime)?" "y"; then
+        log_info "Installing Bun..."
+
+        # Install Bun using the official installer
+        curl -fsSL https://bun.sh/install | bash
+
+        # Add to PATH temporarily for this session
+        export PATH="$HOME/.bun/bin:$PATH"
+
+        # Create symlink to make it globally accessible
+        if [ -f "$HOME/.bun/bin/bun" ]; then
+            if [ -w /usr/local/bin ] || [ "$EUID" -eq 0 ]; then
+                ln -sf "$HOME/.bun/bin/bun" /usr/local/bin/bun 2>/dev/null || true
+                log_info "Created symlink: /usr/local/bin/bun"
+            fi
+        fi
+
+        # Verify installation
+        if command -v bun >/dev/null 2>&1 || [ -f "$HOME/.bun/bin/bun" ]; then
+            log_success "Bun installed successfully"
+            if command -v bun >/dev/null 2>&1; then
+                log_info "Bun version: $(bun --version)"
+            else
+                log_info "Bun location: $HOME/.bun/bin/bun"
+            fi
+            return 0
+        else
+            log_error "Bun installation failed"
+            return 1
+        fi
+    else
+        log_warn "Skipping Bun installation"
+        return 1
+    fi
+}
+
+install_opencode_cli() {
+    log_header "OpenCode CLI Installation"
+
+    if command_exists opencode; then
+        log_warn "OpenCode CLI is already installed ($(opencode --version 2>/dev/null || echo 'installed'))"
+        if ! ask_yn "Reinstall OpenCode CLI?" "n"; then
+            return 1
+        fi
+    fi
+
+    if ask_yn "Install OpenCode CLI?" "y"; then
+        log_info "Installing OpenCode CLI..."
+
+        # Ensure Bun is installed first
+        if ! command_exists bun && [ ! -f "$HOME/.bun/bin/bun" ]; then
+            log_error "Bun is required for OpenCode CLI. Please install Bun first."
+            return 1
+        fi
+
+        # Add bun to PATH if not already there
+        export PATH="$HOME/.bun/bin:$PATH"
+
+        # Install OpenCode CLI globally using bun
+        bun install -g @opencode/cli
+
+        # Create symlink if needed
+        if [ -f "$HOME/.bun/bin/opencode" ]; then
+            if [ -w /usr/local/bin ] || [ "$EUID" -eq 0 ]; then
+                ln -sf "$HOME/.bun/bin/opencode" /usr/local/bin/opencode 2>/dev/null || true
+                log_info "Created symlink: /usr/local/bin/opencode"
+            fi
+        fi
+
+        # Verify installation
+        if command -v opencode >/dev/null 2>&1 || [ -f "$HOME/.bun/bin/opencode" ]; then
+            log_success "OpenCode CLI installed successfully"
+            if command -v opencode >/dev/null 2>&1; then
+                log_info "OpenCode version: $(opencode --version 2>/dev/null || echo 'installed')"
+            else
+                log_info "OpenCode location: $HOME/.bun/bin/opencode"
+            fi
+            return 0
+        else
+            log_error "OpenCode CLI installation failed"
+            return 1
+        fi
+    else
+        log_warn "Skipping OpenCode CLI installation"
+        return 1
+    fi
+}
+
 install_opencode_manager() {
     log_header "OpenCode Manager Installation"
 
     local install_dir="/opt/opencode-manager"
-    
+
     if [ -d "$install_dir" ]; then
         log_warn "OpenCode Manager already installed at $install_dir"
         if ! ask_yn "Reinstall OpenCode Manager?" "n"; then
@@ -1247,45 +1400,126 @@ install_opencode_manager() {
 
     if ask_yn "Install OpenCode Manager (runtime mode, no Docker)?" "y"; then
         log_info "Installing OpenCode Manager..."
-        
-        # Create installation directory
-        sudo mkdir -p "$install_dir"
-        
-        # Clone the repository
-        log_info "Cloning OpenCode Manager repository..."
-        sudo git clone https://github.com/chriswritescode-dev/opencode-manager.git "$install_dir"
-        
-        # Install dependencies
-        log_info "Installing dependencies..."
-        cd "$install_dir"
-        
-        # Check if Node.js is installed (required dependency)
+
+        # Step 1: Install dependencies first
+        log_info "Step 1/6: Installing prerequisites..."
+
+        # Check if Node.js is installed
         if ! command_exists npm; then
             log_error "Node.js/npm not installed. OpenCode Manager requires Node.js."
             log_info "Please install Node.js first or run the full installation."
             return 1
         fi
-        
-        # Check if pnpm is installed, if not install it
+
+        # Check/Install Bun
+        if ! command_exists bun && [ ! -f "$HOME/.bun/bin/bun" ]; then
+            log_info "Bun not found. Installing Bun first..."
+            install_bun || {
+                log_error "Failed to install Bun, which is required for OpenCode Manager"
+                return 1
+            }
+        fi
+
+        # Add bun to PATH
+        export PATH="$HOME/.bun/bin:$PATH"
+
+        # Check/Install pnpm
         if ! command_exists pnpm; then
             log_info "Installing pnpm..."
             sudo npm install -g pnpm
         fi
-        
-        # Install packages
+
+        # Check/Install OpenCode CLI
+        if ! command_exists opencode && [ ! -f "$HOME/.bun/bin/opencode" ]; then
+            log_info "OpenCode CLI not found. Installing..."
+            install_opencode_cli || {
+                log_warn "Failed to install OpenCode CLI, but continuing..."
+            }
+        fi
+
+        # Step 2: Create installation directory and clone
+        log_info "Step 2/6: Cloning OpenCode Manager repository..."
+        sudo mkdir -p "$install_dir"
+        sudo git clone https://github.com/chriswritescode-dev/opencode-manager.git "$install_dir"
+
+        # Change to install directory
+        cd "$install_dir"
+
+        # Step 3: Install dependencies
+        log_info "Step 3/6: Installing dependencies..."
         sudo pnpm install
-        
-        # Create .env file
-        log_info "Creating environment configuration..."
-        sudo cp .env.example .env
-        
-        # Update environment variables for runtime mode
-        sudo sed -i 's/PORT=5003/PORT=5003/' .env
-        sudo sed -i 's/AUTH_SECRET=.*/AUTH_SECRET=opencode-manager-secret-key-2025/' .env
-        
-        # Create systemd service file
-        log_info "Creating systemd service..."
-        sudo tee /etc/systemd/system/opencode-manager.service > /dev/null << 'EOF'
+
+        # Step 4: Build frontend
+        log_info "Step 4/6: Building frontend..."
+        if [ -f "package.json" ]; then
+            # Check if there's a build script
+            if grep -q '"build"' package.json; then
+                sudo pnpm build || {
+                    log_warn "Frontend build may have had issues, continuing..."
+                }
+            else
+                log_warn "No build script found in package.json"
+            fi
+        fi
+
+        # Step 5: Create .env file with correct configuration
+        log_info "Step 5/6: Creating environment configuration..."
+
+        # Get server IP
+        local server_ip=$(hostname -I | awk '{print $1}')
+
+        # Create .env file with all required variables
+        sudo tee "$install_dir/.env" > /dev/null << EOF
+# OpenCode Manager Environment Configuration
+NODE_ENV=production
+PORT=5003
+HOST=0.0.0.0
+
+# Authentication
+AUTH_SECRET=opencode-manager-secret-key-2025-$(date +%s)
+
+# Paths
+WORKSPACE_BASE=/opt/opencode-manager/workspace
+REPOSITORIES_BASE=/opt/opencode-manager/workspace/repos
+CONFIG_DIR=/opt/opencode-manager/.config/opencode
+
+# Server Configuration
+SERVER_IP=$server_ip
+TRUST_PROXY=true
+
+# WebSocket Configuration
+WS_PING_INTERVAL=30000
+WS_PING_TIMEOUT=60000
+
+# Agent Configuration
+AGENT_TYPE=kimi
+AGENT_SESSION_TIMEOUT=3600000
+
+# Nginx Configuration (if using Baota)
+NGINX_CONFIG_DIR=/www/server/panel/vhost/nginx
+NGINX_RELOAD_SCRIPT=/opt/opencode-manager/reload-nginx.sh
+
+# Logging
+LOG_LEVEL=info
+LOG_FILE=/var/log/opencode-manager.log
+EOF
+
+        log_success "Environment file created at $install_dir/.env"
+
+        # Set proper permissions
+        sudo chown -R root:root "$install_dir"
+        sudo chmod 600 "$install_dir/.env"
+
+        # Step 6: Create systemd service file
+        log_info "Step 6/6: Creating systemd service..."
+
+        # Get the correct PATH including bun
+        local bun_path="$HOME/.bun/bin"
+        if [ "$EUID" -eq 0 ]; then
+            bun_path="/root/.bun/bin"
+        fi
+
+        sudo tee /etc/systemd/system/opencode-manager.service > /dev/null << EOF
 [Unit]
 Description=OpenCode Manager
 After=network.target
@@ -1294,35 +1528,51 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/opt/opencode-manager
-Environment=PATH=/usr/local/bin:/usr/bin
+Environment=PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:$bun_path
 Environment=NODE_ENV=production
+Environment=HOME=/root
 ExecStart=/usr/local/bin/pnpm start
 Restart=always
 RestartSec=10
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
 EOF
-        
+
         # Reload systemd and enable service
         sudo systemctl daemon-reload
         sudo systemctl enable opencode-manager
-        
+
         # Start the service
         log_info "Starting OpenCode Manager service..."
         sudo systemctl start opencode-manager
-        
+
         # Wait for service to start
         sleep 5
-        
+
         # Check if service is running
         if sudo systemctl is-active --quiet opencode-manager; then
-            log_success "OpenCode Manager installed and running on http://localhost:5003"
-            log_info "Access the web interface at: http://$(hostname -I | awk '{print $1}'):5003"
+            log_success "OpenCode Manager installed and running!"
+            log_info "Local access: http://localhost:5003"
+            log_info "Network access: http://$server_ip:5003"
+            log_info "Service commands:"
+            log_info "  - Start: sudo systemctl start opencode-manager"
+            log_info "  - Stop: sudo systemctl stop opencode-manager"
+            log_info "  - Restart: sudo systemctl restart opencode-manager"
+            log_info "  - Logs: sudo journalctl -u opencode-manager -f"
             return 0
         else
             log_error "OpenCode Manager service failed to start"
-            log_info "Check logs with: sudo journalctl -u opencode-manager -f"
+            log_info "Checking service status..."
+            sudo systemctl status opencode-manager --no-pager | tee -a "$LOG_FILE"
+            log_info "Checking logs..."
+            sudo journalctl -u opencode-manager --no-pager -n 50 | tee -a "$LOG_FILE"
+            log_info "Common fixes:"
+            log_info "  1. Check if port 5003 is in use: sudo lsof -i :5003"
+            log_info "  2. Check .env file: sudo cat /opt/opencode-manager/.env"
+            log_info "  3. Try manual start: cd /opt/opencode-manager && sudo pnpm start"
             return 1
         fi
     else
@@ -1350,7 +1600,10 @@ install_baota_panel() {
         # Download and install Baota panel with SSL
         cd /tmp
         wget -O install_panel.sh https://download.bt.cn/install/install_panel.sh
-        sudo bash install_panel.sh ssl251104
+        # Auto-confirm installation with 'yes' command
+        yes | sudo bash install_panel.sh ssl251104 || {
+            log_warn "Baota installation may have completed despite warnings"
+        }
         
         # Wait for installation to complete
         log_info "Waiting for Baota panel to initialize..."
@@ -1375,54 +1628,115 @@ install_baota_panel() {
     fi
 }
 
-install_nginx_via_baota() {
-    log_header "Nginx Installation via Baota Panel"
-
-    # Check if Baota is installed
-    if [ ! -f "/etc/init.d/bt" ]; then
-        log_warn "Baota Panel not installed, skipping Nginx installation"
-        return 1
-    fi
-
-    # Check if nginx is already installed via Baota
-    if [ -f "/www/server/nginx/sbin/nginx" ]; then
-        log_warn "Nginx already installed via Baota"
-        log_info "Nginx version: $(/www/server/nginx/sbin/nginx -v 2>&1)"
-        return 0
-    fi
-
-    if ask_yn "Install Nginx via Baota Panel?" "y"; then
-        log_info "Installing Nginx through Baota..."
+show_nginx_manual_install_guide() {
+    log_header "Nginx Manual Installation Guide"
+    
+    log_info "Nginx will NOT be installed automatically via CLI."
+    log_info "Please follow these steps to install Nginx through Baota Panel web interface:"
+    echo ""
+    echo -e "${CYAN}Step 1: Access Baota Panel${NC}"
+    echo "  - Open your browser and visit: http://$(hostname -I | awk '{print $1}'):8888"
+    echo "  - Or use: sudo bt default  (to get the panel URL and credentials)"
+    echo ""
+    echo -e "${CYAN}Step 2: Install Nginx${NC}"
+    echo "  1. Login to Baota Panel"
+    echo "  2. Go to: Software Store (软件商店)"
+    echo "  3. Search for: Nginx"
+    echo "  4. Click 'Install' and wait for installation to complete"
+    echo "  5. Recommended version: Nginx 1.24.0 or latest stable"
+    echo ""
+    echo -e "${CYAN}Step 3: Add Website with Reverse Proxy${NC}"
+    echo "  1. After Nginx is installed, go to: Websites (网站)"
+    echo "  2. Click 'Add Site' (添加站点)"
+    echo "  3. Enter domain: www.sailfish.com.cn"
+    echo "  4. Select PHP version: 'Pure Static' (纯静态)"
+    echo "  5. Click 'Submit' to create the site"
+    echo ""
+    echo -e "${CYAN}Step 4: Configure Reverse Proxy to OpenCode Manager${NC}"
+    echo "  1. Click on the site you just created"
+    echo "  2. Go to: Settings (设置) -> Reverse Proxy (反向代理)"
+    echo "  3. Click 'Add Reverse Proxy' (添加反向代理)"
+    echo "  4. Set Proxy Name: opencode-manager"
+    echo "  5. Set Target URL: http://127.0.0.1:5003"
+    echo "  6. Enable 'Send Domain' (发送域名)"
+    echo "  7. Click 'Save'"
+    echo ""
+    echo -e "${YELLOW}Alternative: Use the Nginx config file below:${NC}"
+    echo "  Config file location: /www/server/panel/vhost/nginx/www.sailfish.com.cn.conf"
+    echo ""
+    
+    # Create a reference config file
+    local nginx_conf_dir="/opt/opencode-manager/nginx-config-examples"
+    sudo mkdir -p "$nginx_conf_dir"
+    
+    sudo tee "$nginx_conf_dir/www.sailfish.com.cn.conf" > /dev/null << 'EOF'
+server {
+    listen 80;
+    listen [::]:80;
+    server_name www.sailfish.com.cn sailfish.com.cn;
+    
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    
+    # Logging
+    access_log /www/wwwlogs/www.sailfish.com.cn.log;
+    error_log /www/wwwlogs/www.sailfish.com.cn.error.log;
+    
+    # WebSocket support
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        '' close;
+    }
+    
+    # Static files
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
+        root /www/wwwroot/www.sailfish.com.cn;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+    
+    # Deny access to hidden files
+    location ~ /\.(?!well-known) {
+        deny all;
+    }
+    
+    # Reverse proxy to OpenCode Manager
+    location / {
+        proxy_pass http://127.0.0.1:5003;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
         
-        # Start Baota panel if not running
-        if ! sudo /etc/init.d/bt status | grep -q "running"; then
-            log_info "Starting Baota panel..."
-            sudo /etc/init.d/bt start
-            sleep 5
-        fi
+        # WebSocket support
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
         
-        # Use Baota CLI to install nginx
-        log_info "Installing Nginx (version 1.24.0)..."
-        sudo bt install nginx 1.24.0
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
         
-        # Check installation
-        if [ -f "/www/server/nginx/sbin/nginx" ]; then
-            log_success "Nginx installed successfully"
-            log_info "Nginx version: $(/www/server/nginx/sbin/nginx -v 2>&1)"
-            
-            # Start nginx
-            log_info "Starting Nginx..."
-            sudo /etc/init.d/nginx start
-            
-            return 0
-        else
-            log_error "Nginx installation failed"
-            return 1
-        fi
-    else
-        log_warn "Skipping Nginx installation"
-        return 1
-    fi
+        # Buffer settings
+        proxy_buffering off;
+        proxy_request_buffering off;
+    }
+}
+EOF
+    
+    sudo chmod 644 "$nginx_conf_dir/www.sailfish.com.cn.conf"
+    log_info "Sample Nginx config saved to: $nginx_conf_dir/www.sailfish.com.cn.conf"
+    echo ""
+    echo -e "${GREEN}You can copy this config to your Baota Panel after installing Nginx.${NC}"
+    echo ""
+    echo -e "${YELLOW}Note: OpenCode Manager is running on http://$(hostname -I | awk '{print $1}'):5003${NC}"
+    echo -e "${YELLOW}After configuring Nginx reverse proxy, you can access it via: http://www.sailfish.com.cn${NC}"
+    echo ""
+    
+    return 0
 }
 
 add_baota_website() {
@@ -1771,8 +2085,8 @@ main() {
     # Advanced server tools
     install_opencode_manager && installed_components+=("OpenCode Manager")
     install_baota_panel && installed_components+=("Baota Panel")
-    install_nginx_via_baota && installed_components+=("Nginx via Baota")
-    add_baota_website && installed_components+=("Website www.sailfish.com.cn")
+    # Nginx and website configuration must be done manually through Baota Panel web interface
+    show_nginx_manual_install_guide
     setup_nginx_symlink && installed_components+=("Nginx Symlink for OpenCode Manager")
 
     # Post-installation configuration
@@ -1783,7 +2097,7 @@ main() {
     log_header "Post-Installation Status Check"
 
     # Check what was installed/upgraded
-    for tool in git zsh oh-my-zsh zoxide lazygit lazydocker docker nvim luarocks node uv poetry gcc btop tmux fzf ripgrep fd opencode-manager baota-panel baota-nginx sailfish-website nginx-symlink; do
+    for tool in git zsh oh-my-zsh zoxide lazygit lazydocker docker docker-compose nvim luarocks node uv poetry gcc btop tmux fzf ripgrep fd bun opencode opencode-manager baota-panel baota-nginx sailfish-website nginx-symlink; do
         local current_status=""
         case $tool in
             git) command_exists git && current_status="$(git --version 2>/dev/null || echo 'installed')" ;;
@@ -1793,6 +2107,7 @@ main() {
             lazygit) command_exists lazygit && current_status="$(lazygit --version 2>/dev/null | head -n1 || echo 'installed')" ;;
             lazydocker) command_exists lazydocker && current_status="installed" ;;
             docker) command_exists docker && current_status="$(docker --version 2>/dev/null || echo 'installed')" ;;
+            docker-compose) command_exists docker-compose && current_status="$(docker-compose --version 2>/dev/null || echo 'installed')" ;;
             nvim) command_exists nvim && current_status="$(nvim --version 2>/dev/null | head -n1 || echo 'installed')" ;;
             luarocks) command_exists luarocks && current_status="$(luarocks --version 2>/dev/null | head -n1 || echo 'installed')" ;;
             node) command_exists node && current_status="$(node --version 2>/dev/null || echo 'installed')" ;;
@@ -1804,6 +2119,8 @@ main() {
             fzf) command_exists fzf && current_status="$(fzf --version 2>/dev/null || echo 'installed')" ;;
             ripgrep) command_exists rg && current_status="$(rg --version 2>/dev/null | head -n1 || echo 'installed')" ;;
             fd) (command_exists fd || command_exists fdfind) && current_status="installed" ;;
+            bun) (command_exists bun || [ -f "$HOME/.bun/bin/bun" ]) && current_status="$(bun --version 2>/dev/null || echo 'installed')" ;;
+            opencode) (command_exists opencode || [ -f "$HOME/.bun/bin/opencode" ]) && current_status="installed" ;;
             opencode-manager) [ -d "/opt/opencode-manager" ] && current_status="installed" ;;
             baota-panel) [ -f "/etc/init.d/bt" ] && current_status="installed" ;;
             baota-nginx) [ -f "/www/server/nginx/sbin/nginx" ] && current_status="$(/www/server/nginx/sbin/nginx -v 2>&1)" ;;
@@ -1909,7 +2226,16 @@ main() {
         echo ""
         echo -e "${CYAN}8.${NC} Baota Panel:" | tee -a "$LOG_FILE"
         echo -e "   ${BLUE}•${NC} View info: sudo bt default" | tee -a "$LOG_FILE"
+        echo -e "   ${BLUE}•${NC} Panel URL: http://$(hostname -I | awk '{print $1}'):8888" | tee -a "$LOG_FILE"
         echo -e "   ${BLUE}•${NC} Panel CLI: sudo bt" | tee -a "$LOG_FILE"
+        echo ""
+        echo -e "   ${YELLOW}⚠️ IMPORTANT: Manual steps required:${NC}" | tee -a "$LOG_FILE"
+        echo -e "   ${CYAN}1.${NC} Login to Baota Panel web interface" | tee -a "$LOG_FILE"
+        echo -e "   ${CYAN}2.${NC} Install Nginx from Software Store" | tee -a "$LOG_FILE"
+        echo -e "   ${CYAN}3.${NC} Add website: www.sailfish.com.cn" | tee -a "$LOG_FILE"
+        echo -e "   ${CYAN}4.${NC} Configure reverse proxy to http://127.0.0.1:5003" | tee -a "$LOG_FILE"
+        echo ""
+        echo -e "   ${BLUE}📄 Nginx config example:${NC} /opt/opencode-manager/nginx-config-examples/www.sailfish.com.cn.conf" | tee -a "$LOG_FILE"
     fi
     
     if [ -f "/www/server/nginx/sbin/nginx" ]; then
@@ -1921,18 +2247,12 @@ main() {
         if [ -L "/opt/opencode-manager/nginx-configs" ]; then
             echo -e "   ${BLUE}•${NC} OpenCode Manager can manage nginx via: /opt/opencode-manager/nginx-api.sh" | tee -a "$LOG_FILE"
         fi
-    fi
-    
-    if [ -d "/www/wwwroot/www.sailfish.com.cn" ]; then
-        echo ""
-        echo -e "${CYAN}10.${NC} Website www.sailfish.com.cn:" | tee -a "$LOG_FILE"
-        echo -e "   ${BLUE}•${NC} Web root: /www/wwwroot/www.sailfish.com.cn" | tee -a "$LOG_FILE"
-        echo -e "   ${BLUE}•${NC} Access via nginx proxy: http://www.sailfish.com.cn (add to /etc/hosts if needed)" | tee -a "$LOG_FILE"
-        echo -e "   ${BLUE}•${NC} Nginx config: /www/server/panel/vhost/nginx/www.sailfish.com.cn.conf" | tee -a "$LOG_FILE"
         
         if [ -d "/opt/opencode-manager" ]; then
-            echo -e "   ${BLUE}•${NC} Reverse proxy: http://www.sailfish.com.cn → http://127.0.0.1:5003" | tee -a "$LOG_FILE"
-            echo -e "   ${YELLOW}⚡${NC} You can now access OpenCode Manager via: http://www.sailfish.com.cn" | tee -a "$LOG_FILE"
+            echo ""
+            echo -e "   ${YELLOW}⚡${NC} To access OpenCode Manager via domain:" | tee -a "$LOG_FILE"
+            echo -e "      ${BLUE}•${NC} Add to /etc/hosts: $(hostname -I | awk '{print $1}') www.sailfish.com.cn" | tee -a "$LOG_FILE"
+            echo -e "      ${BLUE}•${NC} Then visit: http://www.sailfish.com.cn" | tee -a "$LOG_FILE"
         fi
     fi
 
