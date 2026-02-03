@@ -1417,15 +1417,16 @@ add_baota_website() {
 </html>
 EOF
         
-        # Create nginx configuration
+        # Get server IP for proxy_pass
+        local server_ip=$(hostname -I | awk '{print $1}')
+        
+        # Create nginx configuration with reverse proxy to OpenCode Manager
         local nginx_conf="/www/server/panel/vhost/nginx/$domain.conf"
         sudo tee "$nginx_conf" > /dev/null << EOF
 server {
     listen 80;
     listen [::]:80;
     server_name $domain sailfish.com.cn;
-    index index.php index.html index.htm default.php default.htm default.html;
-    root $web_root;
     
     # Security headers
     add_header X-Frame-Options "SAMEORIGIN" always;
@@ -1436,17 +1437,17 @@ server {
     access_log /www/wwwlogs/$domain.log;
     error_log /www/wwwlogs/$domain.error.log;
     
-    # Static file caching
-    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
-        expires 30d;
-        add_header Cache-Control "public, immutable";
+    # WebSocket support for OpenCode Manager
+    map \$http_upgrade \$connection_upgrade {
+        default upgrade;
+        '' close;
     }
     
-    # PHP support (if needed in future)
-    location ~ [^/]\.php(/|$) {
-        fastcgi_pass unix:/tmp/php-cgi-74.sock;
-        fastcgi_index index.php;
-        include fastcgi.conf;
+    # Static files (fallback to local if needed)
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
+        root $web_root;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
     }
     
     # Deny access to hidden files
@@ -1454,12 +1455,34 @@ server {
         deny all;
     }
     
-    # Default location
+    # Reverse proxy to OpenCode Manager (port 5003)
     location / {
-        try_files \$uri \$uri/ /index.html;
+        proxy_pass http://127.0.0.1:5003;
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        
+        # WebSocket support
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
+        
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+        
+        # Buffer settings
+        proxy_buffering off;
+        proxy_request_buffering off;
     }
 }
 EOF
+        
+        # Create a simple static file fallback directory
+        sudo mkdir -p "$web_root/static"
+        sudo chown -R www:www "$web_root"
         
         # Reload nginx
         log_info "Reloading Nginx configuration..."
@@ -1809,7 +1832,13 @@ main() {
         echo ""
         echo -e "${CYAN}9.${NC} Website www.sailfish.com.cn:" | tee -a "$LOG_FILE"
         echo -e "   ${BLUE}•${NC} Web root: /www/wwwroot/www.sailfish.com.cn" | tee -a "$LOG_FILE"
-        echo -e "   ${BLUE}•${NC} Local access: http://www.sailfish.com.cn (add to /etc/hosts if needed)" | tee -a "$LOG_FILE"
+        echo -e "   ${BLUE}•${NC} Access via nginx proxy: http://www.sailfish.com.cn (add to /etc/hosts if needed)" | tee -a "$LOG_FILE"
+        echo -e "   ${BLUE}•${NC} Nginx config: /www/server/panel/vhost/nginx/www.sailfish.com.cn.conf" | tee -a "$LOG_FILE"
+        
+        if [ -d "/opt/opencode-manager" ]; then
+            echo -e "   ${BLUE}•${NC} Reverse proxy: http://www.sailfish.com.cn → http://127.0.0.1:5003" | tee -a "$LOG_FILE"
+            echo -e "   ${YELLOW}⚡${NC} You can now access OpenCode Manager via: http://www.sailfish.com.cn" | tee -a "$LOG_FILE"
+        fi
     fi
 
     echo ""
