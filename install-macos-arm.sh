@@ -478,8 +478,20 @@ install_bun() {
 
     if ask_yn "Install Bun (fast JavaScript runtime)?" "y"; then
         log_info "Installing Bun..."
-        brew install bun
-        log_success "Bun installed successfully"
+        # Bun is not available in Homebrew core, use official installer
+        curl -fsSL https://bun.sh/install | bash
+        if command_exists bun; then
+            log_success "Bun installed successfully"
+        else
+            # Source the shell config to make bun available
+            export BUN_INSTALL="$HOME/.bun"
+            export PATH="$BUN_INSTALL/bin:$PATH"
+            if [ -f "$BUN_INSTALL/bin/bun" ]; then
+                log_success "Bun installed successfully (restart terminal to use)"
+            else
+                log_error "Failed to install Bun"
+            fi
+        fi
     else
         log_warn "Skipping Bun installation"
     fi
@@ -529,7 +541,47 @@ EOF
     fi
 }
 
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            -y|--yes)
+                AUTO_YES=true
+                shift
+                ;;
+            -h|--help)
+                cat << EOF
+macOS (Apple Silicon/ARM64) Server Setup Script
+
+Usage: $0 [OPTIONS]
+
+OPTIONS:
+    -y, --yes       Auto-answer yes to all prompts (non-interactive mode)
+    -h, --help      Display this help message
+
+EXAMPLES:
+    $0              # Interactive mode with prompts
+    $0 -y           # Non-interactive mode, auto-yes to everything
+
+For more information, see README.md
+EOF
+                exit 0
+                ;;
+            *)
+                log_error "Unknown option: $1"
+                echo "Use -h or --help for usage information"
+                exit 1
+                ;;
+        esac
+    done
+}
+
 main() {
+    parse_args "$@"
+
+    if [ "$AUTO_YES" = true ]; then
+        log_info "Running in AUTO-YES mode - all prompts will be automatically accepted"
+    fi
+
     log_header "macOS (Apple Silicon/ARM64) Setup"
 
     check_installation_status
@@ -540,24 +592,24 @@ main() {
     fi
 
     check_prerequisites
-    install_git
-    install_zsh
-    install_zoxide
-    install_lazygit
-    install_lazydocker
-    install_docker
-    install_neovim
-    install_uv
-    install_poetry
-    install_luarocks
-    install_nodejs
-    install_gcc
-    install_btop
-    install_tmux
-    install_fzf
-    install_ripgrep_fd
-    install_bun
-    configure_zsh
+    install_git || true
+    install_zsh || true
+    install_zoxide || true
+    install_lazygit || true
+    install_lazydocker || true
+    install_docker || true
+    install_neovim || true
+    install_uv || true
+    install_poetry || true
+    install_luarocks || true
+    install_nodejs || true
+    install_gcc || true
+    install_btop || true
+    install_tmux || true
+    install_fzf || true
+    install_ripgrep_fd || true
+    install_bun || true
+    configure_zsh || true
 
     log_header "Installation Complete"
     log_success "All requested tools have been installed"
