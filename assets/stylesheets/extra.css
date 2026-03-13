@@ -1,0 +1,88 @@
+/* Custom styles for Oh My OpenCode Agents */
+
+/* GitHub source info styling */
+.md-source__facts {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+  font-size: 0.7rem;
+}
+
+.md-source__fact {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: var(--md-default-fg-color--light);
+}
+
+.md-source__fact .md-icon {
+  width: 0.8rem;
+  height: 0.8rem;
+  font-size: 0.8rem;
+}
+
+/* Improve header layout */
+.md-header__source {
+  margin-left: 0.5rem;
+}
+
+@media screen and (max-width: 768px) {
+  .md-source__facts {
+    display: none;
+  }
+}
+
+/* Code block enhancements */
+.highlight pre {
+  border-radius: 0.2rem;
+}
+
+/* Custom admonition colors */
+.md-typeset .admonition.tip {
+  border-left-color: #667eea;
+}
+
+.md-typeset .admonition.tip > .admonition-title {
+  background-color: rgba(102, 126, 234, 0.1);
+}
+
+.md-typeset .admonition.tip > .admonition-title::before {
+  color: #667eea;
+}
+
+/* Tab styling improvements */
+.tabbed-content {
+  padding: 1rem;
+}
+
+/* Better typography for Chinese */
+.md-typeset {
+  font-size: 0.85rem;
+}
+
+.md-typeset h1 {
+  font-weight: 700;
+  color: var(--md-default-fg-color);
+}
+
+.md-typeset h2 {
+  font-weight: 600;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+  padding-bottom: 0.3rem;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Navigation improvements */
+.md-nav__link--active {
+  font-weight: 600;
+}
+
+/* Search highlight */
+.md-search-result mark {
+  background-color: rgba(102, 126, 234, 0.3);
+  color: inherit;
+}
