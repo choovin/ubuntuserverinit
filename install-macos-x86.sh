@@ -128,7 +128,7 @@ check_installation_status() {
     log_info "Checking what is currently installed..."
     echo ""
 
-    local tools=("git" "zsh" "docker" "neovim" "node" "gcc" "tmux" "fzf" "rg" "fd" "btop" "lazygit" "lazydocker" "zoxide" "uv" "poetry" "luarocks" "bun")
+    local tools=("git" "zsh" "docker" "neovim" "node" "gcc" "tmux" "fzf" "rg" "fd" "btop" "lazygit" "lazydocker" "zoxide" "uv" "poetry" "luarocks" "bun" "ghostty" "claude")
     for tool in "${tools[@]}"; do
         if command_exists "$tool"; then
             local version=$($tool --version 2>/dev/null | head -n1 || echo "installed")
@@ -498,6 +498,214 @@ install_bun() {
     fi
 }
 
+install_ghostty() {
+    log_header "Ghostty Terminal Installation"
+
+    if command_exists ghostty; then
+        log_warn "Ghostty is already installed"
+        return 1
+    fi
+
+    if ask_yn "Install Ghostty terminal?" "y"; then
+        log_info "Installing Ghostty..."
+        brew install --cask ghostty
+
+        # Create config directory
+        mkdir -p "$HOME/.config/ghostty"
+
+        # Backup existing config
+        backup_path "$HOME/.config/ghostty/config"
+
+        # Write Ghostty configuration
+        cat > "$HOME/.config/ghostty/config" << 'GHOSTTY_CONFIG'
+# ============================================
+# Ghostty Terminal - Complete Configuration
+# ============================================
+# File: ~/.config/ghostty/config
+# Reload: Cmd+Shift+, (macOS)
+# View options: ghostty +show-config --default --docs
+
+# --- Typography ---
+font-family = "Maple Mono NF CN"
+font-size = 14
+font-thicken = true
+adjust-cell-height = 2
+
+# --- Theme and Colors ---
+# Catppuccin with automatic light/dark switching
+theme = Catppuccin Mocha
+
+# --- Window and Appearance ---
+background-opacity = 0.85
+background-blur-radius = 30
+macos-titlebar-style = transparent
+window-padding-x = 10
+window-padding-y = 8
+window-save-state = always
+window-theme = auto
+
+# --- Cursor ---
+cursor-style = bar
+cursor-style-blink = true
+cursor-opacity = 0.8
+
+# --- Mouse ---
+mouse-hide-while-typing = true
+copy-on-select = clipboard
+
+# --- Quick Terminal (Quake-style dropdown) ---
+quick-terminal-position = top
+quick-terminal-screen = mouse
+quick-terminal-autohide = true
+quick-terminal-animation-duration = 0.15
+
+# --- Security ---
+clipboard-paste-protection = true
+clipboard-paste-bracketed-safe = true
+
+# --- Shell Integration ---
+shell-integration = detect
+
+# --- Keybindings ---
+# Tabs
+keybind = cmd+t=new_tab
+keybind = cmd+shift+left=previous_tab
+keybind = cmd+shift+right=next_tab
+keybind = cmd+w=close_surface
+
+# Splits
+keybind = cmd+d=new_split:right
+keybind = cmd+shift+d=new_split:down
+keybind = cmd+alt+left=goto_split:left
+keybind = cmd+alt+right=goto_split:right
+keybind = cmd+alt+up=goto_split:top
+keybind = cmd+alt+down=goto_split:bottom
+
+# Font size
+keybind = cmd+plus=increase_font_size:1
+keybind = cmd+minus=decrease_font_size:1
+keybind = cmd+zero=reset_font_size
+
+# Quick terminal global hotkey
+keybind = global:ctrl+grave_accent=toggle_quick_terminal
+
+# Splits management
+keybind = cmd+shift+e=equalize_splits
+keybind = cmd+shift+f=toggle_split_zoom
+
+# Reload config
+keybind = cmd+shift+comma=reload_config
+
+# --- Performance ---
+# Generous scrollback (25MB)
+scrollback-limit = 25000000
+GHOSTTY_CONFIG
+
+        log_success "Ghostty installed and configured successfully"
+        log_info "Config file: ~/.config/ghostty/config"
+        log_info "Note: You may need to install 'Maple Mono NF CN' font for best experience"
+    else
+        log_warn "Skipping Ghostty installation"
+    fi
+}
+
+install_claude() {
+    log_header "Claude CLI Installation"
+
+    if command_exists claude; then
+        log_warn "Claude CLI is already installed ($(claude --version 2>/dev/null || echo 'installed'))"
+        return 1
+    fi
+
+    if ask_yn "Install Claude CLI with domestic network configuration?" "y"; then
+        log_info "Installing Claude CLI..."
+
+        # Install claude CLI via npm
+        npm install -g @anthropic-ai/claude-code
+
+        if ! command_exists claude; then
+            log_error "Failed to install Claude CLI"
+            return 1
+        fi
+
+        # Create Claude config directory
+        mkdir -p "$HOME/.claude"
+
+        # Configure for domestic network (China proxy)
+        # Create settings.json with proxy and API configuration
+        cat > "$HOME/.claude/settings.json" << 'CLAUDE_SETTINGS'
+{
+  "apiProvider": "anthropic",
+  "apiBaseUrl": "https://api.anthropic.com",
+  "defaultModel": "claude-sonnet-4-6",
+  "enableProxy": true,
+  "proxyUrl": "http://127.0.0.1:7890"
+}
+CLAUDE_SETTINGS
+
+        # Create .claude.json for project-level settings
+        cat > "$HOME/.claude.json" << 'CLAUDE_PROJECT'
+{
+  "model": "claude-sonnet-4-6"
+}
+CLAUDE_PROJECT
+
+        log_success "Claude CLI installed successfully"
+        log_info "Configured with domestic network proxy support"
+        log_info "Config file: ~/.claude/settings.json"
+        log_warn "Note: Make sure your proxy is running on http://127.0.0.1:7890"
+        log_warn "Or update the proxy URL in ~/.claude/settings.json"
+    else
+        log_warn "Skipping Claude CLI installation"
+    fi
+}
+
+configure_bailian_subscription() {
+    log_header "Alibaba Cloud Bailian (百炼) Subscription Configuration"
+
+    if ask_yn "Configure Alibaba Cloud Bailian coding plan subscription?" "y"; then
+        # Create .claude directory if not exists
+        mkdir -p "$HOME/.claude"
+
+        # Backup existing settings
+        backup_path "$HOME/.claude/settings.json"
+
+        # Configure Bailian API with glm-5 as default model
+        cat > "$HOME/.claude/settings.json" << 'BAILIAN_CONFIG'
+{
+  "apiProvider": "openai-compatible",
+  "apiBaseUrl": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  "defaultModel": "glm-5",
+  "models": {
+    "glm-5": {
+      "maxTokens": 8192,
+      "contextWindow": 128000
+    },
+    "qwen-max": {
+      "maxTokens": 8192,
+      "contextWindow": 32000
+    },
+    "qwen-plus": {
+      "maxTokens": 8192,
+      "contextWindow": 128000
+    }
+  },
+  "enableProxy": true,
+  "proxyUrl": "http://127.0.0.1:7890"
+}
+BAILIAN_CONFIG
+
+        log_success "Bailian subscription configured"
+        log_info "Default model: glm-5"
+        log_info "Config file: ~/.claude/settings.json"
+        log_warn "IMPORTANT: You need to set your Bailian API key:"
+        log_warn "  export DASHSCOPE_API_KEY='your-api-key-here'"
+        log_warn "  Or add it to ~/.zshrc"
+    else
+        log_warn "Skipping Bailian subscription configuration"
+    fi
+}
+
 configure_zsh() {
     log_header "Zsh Configuration"
 
@@ -610,6 +818,9 @@ main() {
     install_fzf || true
     install_ripgrep_fd || true
     install_bun || true
+    install_ghostty || true
+    install_claude || true
+    configure_bailian_subscription || true
     configure_zsh || true
 
     log_header "Installation Complete"
